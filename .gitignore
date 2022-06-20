@@ -5,3 +5,5 @@
 /bin/Debug/net6.0
 /api_csharp/bin/Debug/net6.0
 /api_csharp/obj
+/domain/bin/Debug/net6.0
+/domain/obj
