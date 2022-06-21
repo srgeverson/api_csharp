@@ -12,12 +12,11 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 
 ## 🚀 Dependências utilizadas
 
-```bash
+* **System.Data.SqlClient**
 
-### 
-$ 
+* **AutoMapper**
 
-```
+* **AutoMapper.Extensions.Microsoft.DependencyInjection**
 
 #### 🎲 Rodando a aplicação em desenvolvimento
 
