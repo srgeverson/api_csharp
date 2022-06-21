@@ -8,7 +8,7 @@ namespace domain.DAO
 {
     public class ConexaoDAO
     {
-        public static string URLCONEXAO { get; set; }
+        public static string? URLCONEXAO { get; set; }
 
         private ConexaoDAO()
         {
