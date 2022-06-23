@@ -6,7 +6,7 @@ namespace api_csharp.API.v1.mapper
 {
     public class UsuarioMapper : Profile
     {
-        public UsuarioResponse ToResponse(Usuario usuario)
+        public UsuarioResponse ToResponse(Usuario? usuario)
         {
             var config = new MapperConfiguration(cfg => cfg.CreateMap<Usuario, UsuarioResponse>());
             var mapper = new Mapper(config);

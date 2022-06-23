@@ -36,6 +36,39 @@ namespace domain.DAO
             }
         }
 
+        public Usuario? BuscarPorId(int id)
+        {
+            try
+            {
+                Usuario? usuario = null;
+                using (var sqlConnection = new SqlConnection(ConexaoDAO.URLCONEXAO))
+                {
+                    sqlConnection.Open();
+
+                    var sqlCommand = new SqlCommand("SELECT * FROM usuarios AS u WHERE u.Id = @id", sqlConnection);
+                    sqlCommand.Parameters.AddWithValue("@id", id);
+
+                    var sqlDataReader = sqlCommand.ExecuteReader();
+                    while (sqlDataReader.Read())
+                    {
+                        usuario = new Usuario()
+                        {
+                            Id = Convert.ToInt32(sqlDataReader["Id"]),
+                            Nome = sqlDataReader["Nome"].ToString(),
+                            Senha = sqlDataReader["Senha"].ToString(),
+                            Ativo = Convert.ToBoolean(sqlDataReader["Ativo"]),
+                        };
+                    }
+                    sqlConnection.Close();
+                }
+                return usuario;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("Ocorreu um erro em {0}. Detalhes: {1}", this.GetType().Name, ex.Message));
+            }
+        }
+
         public List<Usuario> Todos()
         {
             try
@@ -59,39 +92,6 @@ namespace domain.DAO
                     sqlConnection.Close();
                 }
                 return usuarios;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(string.Format("Ocorreu um erro em {0}. Detalhes: {1}", this.GetType().Name, ex.Message));
-            }
-        }
-
-        public Usuario PorId(int id)
-        {
-            try
-            {
-                var usuario = new Usuario();
-                using (var sqlConnection = new SqlConnection(ConexaoDAO.URLCONEXAO))
-                {
-                    sqlConnection.Open();
-
-                    var sqlCommand = new SqlCommand("SELECT * FROM usuarios AS u WHERE u.Id = @id", sqlConnection);
-                    sqlCommand.Parameters.AddWithValue("@id", id);
-
-                    var sqlDataReader = sqlCommand.ExecuteReader();
-                    while (sqlDataReader.Read())
-                    {
-                        usuario = new Usuario()
-                        {
-                            Id = Convert.ToInt32(sqlDataReader["Id"]),
-                            Nome = sqlDataReader["Nome"].ToString(),
-                            Senha = sqlDataReader["Senha"].ToString(),
-                            Ativo = Convert.ToBoolean(sqlDataReader["Ativo"]),
-                        };
-                    }
-                    sqlConnection.Close();
-                }
-                return usuario;
             }
             catch (Exception ex)
             {
