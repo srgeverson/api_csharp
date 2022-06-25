@@ -18,6 +18,8 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 
 * **AutoMapper.Extensions.Microsoft.DependencyInjection**
 
+* **Newtonsoft.Json**
+
 #### 🎲 Rodando a aplicação em desenvolvimento
 
 ```bash
