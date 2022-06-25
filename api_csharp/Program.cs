@@ -1,14 +1,9 @@
 using api_csharp.API.exceptionhandler;
 using domain.DAO;
-using Microsoft.AspNetCore.Diagnostics;
-using Newtonsoft.Json;
-using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-//services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddGlobalExceptionHandlerMiddleware();
 
@@ -17,9 +12,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 app.UseGlobalExceptionHandlerMiddleware();

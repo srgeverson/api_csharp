@@ -47,16 +47,10 @@ namespace api_csharp.API.v1.controller
 
         [HttpGet]
         [Route("v1/clientes")]
-        public IActionResult Todos()
+        public ActionResult<List<UsuarioResponse>> Todos()
         {
-            try
-            {
-                return Ok(usuarioMapper.ToListResponse(usuarioDAO.Todos()));
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, apiExceptionHandler.GetProblema(500, string.Format("Erro interno ocorreu: {0}", ex.Message)));
-            }
+
+            return Ok(usuarioMapper.ToListResponse(usuarioDAO.Todos()));
         }
     }
 }
