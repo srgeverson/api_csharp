@@ -1,9 +1,11 @@
-﻿using System.ComponentModel;
-using System.Reflection;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.ComponentModel;
+using System.Net;
 
 namespace api_csharp.API.exceptionhandler
 {
-    public class ApiExceptionHandler : HttpRequestException
+    public class ApiExceptionHandler : ControllerBase, IMiddleware
     {
         public static string MSG_ERRO_GENERICA_USUARIO_FINAL = "Ocorreu um erro interno inesperado no sistema. Tente novamente e se o problema persistir, entre em contato com o administrador do sistema.";
         private Problema problema;
@@ -13,7 +15,7 @@ namespace api_csharp.API.exceptionhandler
             problema = new Problema();
         }
 
-        public Problema GetProblema(int status, string mensagem)
+        public ActionResult GetProblema(int status, string mensagem)
         {
             switch (status)
             {
@@ -38,7 +40,29 @@ namespace api_csharp.API.exceptionhandler
             problema.DataHora = DateTime.Now;
             problema.MensagemUsuario = MSG_ERRO_GENERICA_USUARIO_FINAL;
 
-            return problema;
+            return StatusCode(status, problema);
+        }
+
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+        {
+            try
+            {
+                await next(context);
+            }
+            catch (Exception ex)
+            {
+                await HandleExceptionAsync(context, ex);
+            }
+        }
+
+        private Task HandleExceptionAsync(HttpContext context, Exception ex)
+        {
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+            var problema = GetProblema((int)HttpStatusCode.InternalServerError, ex.Message);
+
+            return context.Response.WriteAsync(JsonConvert.SerializeObject(problema));
         }
 
         private string GetEnumDescription(Enum value)
