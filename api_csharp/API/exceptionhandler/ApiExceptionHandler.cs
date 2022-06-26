@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Net;
+using System.Net.Mime;
 
 namespace api_csharp.API.exceptionhandler
 {
@@ -49,15 +50,32 @@ namespace api_csharp.API.exceptionhandler
             {
                 await next(context);
             }
+            catch (HttpRequestException hrex)
+            {
+                await HandleHttpRequestExceptionAsync(context, hrex);
+            }
             catch (Exception ex)
             {
                 await HandleExceptionAsync(context, ex);
             }
         }
 
+        private Task HandleHttpRequestExceptionAsync(HttpContext context, HttpRequestException httpRequestException)
+        {
+            context.Response.ContentType = MediaTypeNames.Application.Json;
+            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+            var problema = GetProblema(
+                httpRequestException.StatusCode.HasValue ? Convert.ToInt32(httpRequestException.StatusCode.Value) : 500,
+                httpRequestException.Message
+                );
+
+            return context.Response.WriteAsync(JsonConvert.SerializeObject(problema));
+        }
+
         private Task HandleExceptionAsync(HttpContext context, Exception ex)
         {
-            context.Response.ContentType = "application/json";
+            context.Response.ContentType = MediaTypeNames.Application.Json;
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
             var problema = GetProblema((int)HttpStatusCode.InternalServerError, ex.Message);
