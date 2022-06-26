@@ -87,7 +87,7 @@ namespace api_csharp.API.exceptionhandler
         {
             var fieldInfo = value.GetType().GetField(value.ToString());
 
-            var attributes = fieldInfo.GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
+            var attributes = fieldInfo?.GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
 
             if (attributes != null && attributes.Any())
                 return attributes.First().Description;
