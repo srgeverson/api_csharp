@@ -22,11 +22,15 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 
 * **Swashbuckle.AspNetCore.Filters 6.2.3**
 
-#### 🎲 Rodando a aplicação em desenvolvimento
+## 🎲 Rodando a aplicação em desenvolvimento
 
 ```bash
+
 ### Clonando o projeto
 $ git clone https://github.com/srgeverson/api_csharp.git
+
+### Execute os scripts que estão dentro do dirétório /api_csharp/domain/DDL
+$ cd /api_csharp/domain/DDL
 
 ```
 
