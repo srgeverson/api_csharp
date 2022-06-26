@@ -1,12 +1,14 @@
-﻿namespace api_csharp.API.exceptionhandler
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace api_csharp.API.exceptionhandler
 {
-    public class Problema
+    public class Problema: ProblemDetails
     {
         /// <summary>
         /// Códido do Status HTTP.
         /// </summary>
         /// <example>200</example>
-        public int Status { get; set; }
+        public virtual int Status { get; set; }
 
         /// <summary>
         /// Data e hora do erro.

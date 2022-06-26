@@ -1,19 +1,20 @@
-﻿
-using api_csharp.API.v1.model;
+﻿using api_csharp.domain.utils;
 using domain.model;
-using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 
 namespace domain.DAO
 {
+    /// <summary>
+    /// Classe responsável por consultar os registros relacionados à tabela usuarios.
+    /// </summary>
     public class UsuarioDAO
     {
         public UsuarioDAO()
         {
         }
 
-        public bool ApagarPorId(int id)
+        public bool DeletePorId(int id)
         {
             try
             {
@@ -38,7 +39,66 @@ namespace domain.DAO
             }
         }
 
-        public Usuario? BuscarPorId(int id)
+        public Usuario Insert(Usuario? usuario)
+        {
+            try
+            {
+                using (var sqlConnection = new SqlConnection(ConexaoDAO.URLCONEXAO))
+                {
+                    sqlConnection.Open();
+
+                    var stringBuilder = new StringBuilder();
+                    stringBuilder.Append("INSERT INTO usuarios (Nome, Senha, Ativo) VALUES (@nome, @senha, @ativo);");
+                    stringBuilder.Append("SELECT @@IDENTITY AS Id;");
+
+                    var sqlCommand = new SqlCommand(stringBuilder.ToString(), sqlConnection);
+                    sqlCommand.Parameters.AddWithValue("@nome", usuario.Nome);
+                    sqlCommand.Parameters.AddWithValue("@senha", usuario.Senha);
+                    sqlCommand.Parameters.AddWithValue("@ativo", usuario.Ativo);
+
+                    var sqlDataReader = sqlCommand.ExecuteReader();
+
+                    if (sqlDataReader.Read())
+                    {
+                        var resultSetToModel = new ResultSetToModel<Usuario>();
+                        usuario = resultSetToModel.ToModel(sqlDataReader, usuario);
+                    }
+
+                    sqlConnection.Close();
+                }
+                return usuario;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("Ocorreu um erro em {0}. Detalhes: {1}", this.GetType().Name, ex.Message));
+            }
+        }
+
+        public List<Usuario> Select()
+        {
+            try
+            {
+                var usuarios = new List<Usuario>();
+                using (var sqlConnection = new SqlConnection(ConexaoDAO.URLCONEXAO))
+                {
+                    sqlConnection.Open();
+                    var sqlCommand = new SqlCommand("SELECT * FROM usuarios;", sqlConnection);
+                    var sqlDataReader = sqlCommand.ExecuteReader();
+
+                    var resultSetToModel = new ResultSetToModel<Usuario>();
+                    usuarios = resultSetToModel.ToListModel(sqlDataReader);
+
+                    sqlConnection.Close();
+                }
+                return usuarios;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(string.Format("Ocorreu um erro em {0}. Detalhes: {1}", this.GetType().Name, ex.Message));
+            }
+        }
+
+        public Usuario? SelectPorId(int id)
         {
             try
             {
@@ -51,15 +111,10 @@ namespace domain.DAO
                     sqlCommand.Parameters.AddWithValue("@id", id);
 
                     var sqlDataReader = sqlCommand.ExecuteReader();
-                    while (sqlDataReader.Read())
+                    if (sqlDataReader.Read())
                     {
-                        usuario = new Usuario()
-                        {
-                            Id = Convert.ToInt32(sqlDataReader["Id"]),
-                            Nome = sqlDataReader["Nome"].ToString(),
-                            Senha = sqlDataReader["Senha"].ToString(),
-                            Ativo = Convert.ToBoolean(sqlDataReader["Ativo"]),
-                        };
+                        var resultSetToModel = new ResultSetToModel<Usuario>();
+                        usuario = resultSetToModel.ToModel(sqlDataReader, new Usuario());
                     }
                     sqlConnection.Close();
                 }
@@ -71,7 +126,7 @@ namespace domain.DAO
             }
         }
 
-        public Usuario? BuscarPorNome(string? nome)
+        public Usuario? SelectPorNome(string? nome)
         {
             try
             {
@@ -80,19 +135,14 @@ namespace domain.DAO
                 {
                     sqlConnection.Open();
 
-                    var sqlCommand = new SqlCommand("SELECT * FROM usuarios AS u WHERE u.Nome = @nome", sqlConnection);
+                    var sqlCommand = new SqlCommand("SELECT * FROM usuarios AS u WHERE u.Nome = @nome;", sqlConnection);
                     sqlCommand.Parameters.AddWithValue("@nome", nome);
 
                     var sqlDataReader = sqlCommand.ExecuteReader();
-                    while (sqlDataReader.Read())
+                    if (sqlDataReader.Read())
                     {
-                        usuario = new Usuario()
-                        {
-                            Id = Convert.ToInt32(sqlDataReader["Id"]),
-                            Nome = sqlDataReader["Nome"].ToString(),
-                            Senha = sqlDataReader["Senha"].ToString(),
-                            Ativo = Convert.ToBoolean(sqlDataReader["Ativo"]),
-                        };
+                        var resultSetToModel = new ResultSetToModel<Usuario>();
+                        usuario = resultSetToModel.ToModel(sqlDataReader, new Usuario());
                     }
                     sqlConnection.Close();
                 }
@@ -104,58 +154,36 @@ namespace domain.DAO
             }
         }
 
-        public Usuario Cadastrar(Usuario? usuario)
+        public bool Update(Usuario? usuario)
         {
             try
             {
+                var usuarioAtualizado = false;
+
                 using (var sqlConnection = new SqlConnection(ConexaoDAO.URLCONEXAO))
                 {
                     sqlConnection.Open();
+
                     var stringBuilder = new StringBuilder();
-                    stringBuilder.Append("INSERT INTO usuarios (Nome, Senha, Ativo) VALUES (@nome, @senha, @ativo);");
-                    stringBuilder.Append("SELECT @@IDENTITY AS Id;");
+                    stringBuilder.Append("UPDATE usuarios ");
+                    stringBuilder.Append("SET ");
+                    stringBuilder.Append("Nome = ISNULL(@nome, Nome), ");
+                    stringBuilder.Append("Senha = ISNULL(@senha, Senha), ");
+                    stringBuilder.Append("Ativo = ISNULL(@ativo, Ativo) ");
+                    stringBuilder.Append("WHERE Id = @Id ");
+
                     var sqlCommand = new SqlCommand(stringBuilder.ToString(), sqlConnection);
-                    sqlCommand.Parameters.AddWithValue("@nome", usuario.Nome);
-                    sqlCommand.Parameters.AddWithValue("@senha", usuario.Senha);
-                    sqlCommand.Parameters.AddWithValue("@ativo", usuario.Ativo);
+                    sqlCommand.Parameters.AddWithValue("@nome", usuario.Nome.Equals(null) ? DBNull.Value : usuario.Nome);
+                    sqlCommand.Parameters.AddWithValue("@senha", usuario.Senha.Equals(null) ? DBNull.Value : usuario.Senha);
+                    sqlCommand.Parameters.AddWithValue("@ativo", usuario.Ativo.Equals(null) ? DBNull.Value : usuario.Ativo);
+                    sqlCommand.Parameters.AddWithValue("@Id", usuario.Id);
 
                     var sqlDataReader = sqlCommand.ExecuteReader();
-                    while (sqlDataReader.Read())
-                        usuario.Id = Convert.ToInt32(sqlDataReader["Id"]);
+                    usuarioAtualizado = sqlDataReader.RecordsAffected > 0;
 
                     sqlConnection.Close();
                 }
-                return usuario;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(string.Format("Ocorreu um erro em {0}. Detalhes: {1}", this.GetType().Name, ex.Message));
-            }
-        }
-
-        public List<Usuario> Todos()
-        {
-            try
-            {
-                var usuarios = new List<Usuario>();
-                using (var sqlConnection = new SqlConnection(ConexaoDAO.URLCONEXAO))
-                {
-                    sqlConnection.Open();
-                    var sqlCommand = new SqlCommand("SELECT * FROM usuarios", sqlConnection);
-                    var sqlDataReader = sqlCommand.ExecuteReader();
-                    while (sqlDataReader.Read())
-                    {
-                        usuarios.Add(new Usuario()
-                        {
-                            Id = Convert.ToInt32(sqlDataReader["Id"]),
-                            Nome = sqlDataReader["Nome"].ToString(),
-                            Senha = sqlDataReader["Senha"].ToString(),
-                            Ativo = Convert.ToBoolean(sqlDataReader["Ativo"]),
-                        });
-                    }
-                    sqlConnection.Close();
-                }
-                return usuarios;
+                return usuarioAtualizado;
             }
             catch (Exception ex)
             {
