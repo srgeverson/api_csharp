@@ -18,7 +18,7 @@
         /// Tipo do erro.
         /// </summary>
         /// <example>Crítico</example>
-        public string? Type { get; set; }
+        public string? Tipo { get; set; }
 
         /// <summary>
         /// Título do erro.

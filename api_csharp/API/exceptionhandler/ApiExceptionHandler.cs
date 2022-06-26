@@ -23,17 +23,17 @@ namespace api_csharp.API.exceptionhandler
                 case (int)ProblemaTipo.RECURSO_NAO_ENCONTRADO:
                     problema.Status = (int)ProblemaTipo.RECURSO_NAO_ENCONTRADO;
                     problema.Titulo = GetEnumDescription(ProblemaTipo.RECURSO_NAO_ENCONTRADO);
-                    problema.Type = ProblemaTipo.RECURSO_NAO_ENCONTRADO.GetType().Name;
+                    problema.Tipo = "Informativo";
                     break;
                 case (int)ProblemaTipo.ENTIDADE_EM_USO:
                     problema.Status = (int)ProblemaTipo.ENTIDADE_EM_USO;
                     problema.Titulo = GetEnumDescription(ProblemaTipo.ENTIDADE_EM_USO);
-                    problema.Type = ProblemaTipo.ENTIDADE_EM_USO.GetType().Name;
+                    problema.Tipo = "Atenção";
                     break;
                 default:
                     problema.Status = (int)ProblemaTipo.ERRO_INTERNO;
                     problema.Titulo = GetEnumDescription(ProblemaTipo.ERRO_INTERNO);
-                    problema.Type = ProblemaTipo.ERRO_INTERNO.GetType().Name;
+                    problema.Tipo = "Critico";
                     break;
             }
 
