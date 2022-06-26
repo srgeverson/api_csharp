@@ -12,15 +12,15 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 
 ## 🚀 Dependências utilizadas
 
-* **System.Data.SqlClient**
+* **System.Data.SqlClient 4.8.3**
 
-* **AutoMapper**
+* **AutoMapper 11.0.1**
 
-* **AutoMapper.Extensions.Microsoft.DependencyInjection**
+* **AutoMapper.Extensions.Microsoft.DependencyInjection 11.0.0**
 
-* **Newtonsoft.Json**
+* **Microsoft.AspNetCore.Mvc.NewtonsoftJson 6.0.6**
 
-* **Swashbuckle.AspNetCore.Filters**
+* **Swashbuckle.AspNetCore.Filters 6.2.3**
 
 #### 🎲 Rodando a aplicação em desenvolvimento
 
