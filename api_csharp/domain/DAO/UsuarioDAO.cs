@@ -110,13 +110,14 @@ namespace domain.DAO
                     var sqlCommand = new SqlCommand("SELECT * FROM usuarios AS u WHERE u.Id = @id", sqlConnection);
                     sqlCommand.Parameters.AddWithValue("@id", id);
 
-                    var sqlDataReader = sqlCommand.ExecuteReader();
-                    if (sqlDataReader.Read())
+                    using (var sqlDataReader = sqlCommand.ExecuteReader())
                     {
-                        var resultSetToModel = new ResultSetToModel<Usuario>();
-                        usuario = resultSetToModel.ToModel(sqlDataReader, new Usuario());
+                        if (sqlDataReader.Read())
+                        {
+                            var resultSetToModel = new ResultSetToModel<Usuario>();
+                            usuario = resultSetToModel.ToModel(sqlDataReader, new Usuario());
+                        }
                     }
-                    sqlConnection.Close();
                 }
                 return usuario;
             }
@@ -135,16 +136,17 @@ namespace domain.DAO
                 {
                     sqlConnection.Open();
 
-                    var sqlCommand = new SqlCommand("SELECT * FROM usuarios AS u WHERE u.Nome = @nome;", sqlConnection);
-                    sqlCommand.Parameters.AddWithValue("@nome", nome);
-
-                    var sqlDataReader = sqlCommand.ExecuteReader();
-                    if (sqlDataReader.Read())
+                    using (var sqlCommand = new SqlCommand("SELECT * FROM usuarios AS u WHERE u.Nome = @nome;", sqlConnection))
                     {
-                        var resultSetToModel = new ResultSetToModel<Usuario>();
-                        usuario = resultSetToModel.ToModel(sqlDataReader, new Usuario());
+                        sqlCommand.Parameters.AddWithValue("@nome", nome);
+
+                        var sqlDataReader = sqlCommand.ExecuteReader();
+                        if (sqlDataReader.Read())
+                        {
+                            var resultSetToModel = new ResultSetToModel<Usuario>();
+                            usuario = resultSetToModel.ToModel(sqlDataReader, new Usuario());
+                        }
                     }
-                    sqlConnection.Close();
                 }
                 return usuario;
             }
@@ -170,18 +172,17 @@ namespace domain.DAO
                     stringBuilder.Append("Nome = ISNULL(@nome, Nome), ");
                     stringBuilder.Append("Senha = ISNULL(@senha, Senha), ");
                     stringBuilder.Append("Ativo = ISNULL(@ativo, Ativo) ");
-                    stringBuilder.Append("WHERE Id = @Id ");
+                    stringBuilder.Append("WHERE Id = @id ");
+                    using (var sqlCommand = new SqlCommand(stringBuilder.ToString(), sqlConnection))
+                    {
+                        sqlCommand.Parameters.AddWithValue("@nome", usuario.Nome.Equals(null) ? DBNull.Value : usuario.Nome);
+                        sqlCommand.Parameters.AddWithValue("@senha", usuario.Senha.Equals(null) ? DBNull.Value : usuario.Senha);
+                        sqlCommand.Parameters.AddWithValue("@ativo", usuario.Ativo.Equals(null) ? DBNull.Value : usuario.Ativo);
+                        sqlCommand.Parameters.AddWithValue("@id", usuario.Id);
 
-                    var sqlCommand = new SqlCommand(stringBuilder.ToString(), sqlConnection);
-                    sqlCommand.Parameters.AddWithValue("@nome", usuario.Nome.Equals(null) ? DBNull.Value : usuario.Nome);
-                    sqlCommand.Parameters.AddWithValue("@senha", usuario.Senha.Equals(null) ? DBNull.Value : usuario.Senha);
-                    sqlCommand.Parameters.AddWithValue("@ativo", usuario.Ativo.Equals(null) ? DBNull.Value : usuario.Ativo);
-                    sqlCommand.Parameters.AddWithValue("@Id", usuario.Id);
-
-                    var sqlDataReader = sqlCommand.ExecuteReader();
-                    usuarioAtualizado = sqlDataReader.RecordsAffected > 0;
-
-                    sqlConnection.Close();
+                        var sqlDataReader = sqlCommand.ExecuteReader();
+                        usuarioAtualizado = sqlDataReader.RecordsAffected > 0;
+                    }
                 }
                 return usuarioAtualizado;
             }
