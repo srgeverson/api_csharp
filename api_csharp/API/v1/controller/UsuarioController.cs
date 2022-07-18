@@ -95,7 +95,7 @@ namespace api_csharp.API.v1.controller
         /// <param name="id" example="123">Código do usuário a ser consultado.</param>
         [HttpGet]
         [Route("{id?}")]
-        [Authorize(Roles = "UNDEFINED")]
+        [Authorize(Roles = "employee")]
         [ProducesResponseType(typeof(List<UsuarioResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
@@ -136,6 +136,33 @@ namespace api_csharp.API.v1.controller
 
         }
 
+        [HttpPost]
+        [Route("login")]
+        [AllowAnonymous]
+        public ActionResult<UsuarioLoginResponse> Logar([FromBody] UsuarioLoginRequest usuarioLoginRequest)
+        {
+            // Recupera o usuário
+            var usuario = usuarioService.BuscarPorNome(usuarioLoginRequest.Nome);
+
+            // Verifica se o usuário existe
+            if (usuario == null)
+                return apiExceptionHandler.GetProblema((int)HttpStatusCode.NotFound, string.Format("Usuário não encontrado!"));
+
+            if (!usuario.Senha.Equals(usuarioLoginRequest.Senha))
+                return apiExceptionHandler.GetProblema((int)HttpStatusCode.BadRequest, string.Format("Senha inválida!"));
+
+            if (usuario.Ativo == false)
+                return apiExceptionHandler.GetProblema((int)HttpStatusCode.BadRequest, string.Format("Usuário desativado!"));
+
+            // Gera o Token
+            var authorizationServer = new AuthorizationServer();
+
+            // Retorna os dados
+            var user = usuarioMapper.ToLoginResponse(usuario);
+            user.Token = authorizationServer.GenerateToken(usuario, new string[2] { "employee", "manager" });
+            return user;
+        }
+
         /// <summary>
         /// Lista todos usuários cadastrados.
         /// </summary>
@@ -147,39 +174,9 @@ namespace api_csharp.API.v1.controller
         [Authorize]
         [ProducesResponseType(typeof(List<UsuarioResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
-        public List<UsuarioResponse> Todos()
+        public ActionResult<List<UsuarioResponse>> Todos()
         {
             return usuarioMapper.ToListResponse(usuarioService.Todos());
-        }
-
-        [HttpPost]
-        [Route("login")]
-        [AllowAnonymous]
-        public async Task<ActionResult<dynamic>> Authenticate([FromBody] UsuarioLoginRequest usuarioLoginRequest)
-        {
-            // Recupera o usuário
-            var usuario = usuarioService.BuscarPorNome(usuarioLoginRequest.Nome);
-
-            // Verifica se o usuário existe
-            if (usuario == null)
-                return NotFound(new { message = "Usuário não encontrado!" });
-
-            if (!usuario.Senha.Equals(usuarioLoginRequest.Senha))
-                return BadRequest(new { message = "Senha inválida!" });
-
-            // Gera o Token
-            var authorizationServer = new AuthorizationServer();
-            var token = authorizationServer.GenerateToken(usuario);
-
-            // Oculta a senha
-            usuarioLoginRequest.Senha = "";
-
-            // Retorna os dados
-            return new
-            {
-                user = usuario,
-                token = token
-            };
         }
     }
 }

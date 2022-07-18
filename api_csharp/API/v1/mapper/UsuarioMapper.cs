@@ -13,6 +13,13 @@ namespace api_csharp.API.v1.mapper
             return mapper.Map<UsuarioResponse>(usuario);
         }
 
+        public UsuarioLoginResponse ToLoginResponse(Usuario? usuario)
+        {
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<Usuario, UsuarioResponse>());
+            var mapper = new Mapper(config);
+            return mapper.Map<UsuarioLoginResponse>(usuario);
+        }
+
         public List<UsuarioResponse> ToListResponse(List<Usuario> usuarios)
         {
             var usuarioResponses = new List<UsuarioResponse>();
