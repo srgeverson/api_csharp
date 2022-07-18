@@ -18,12 +18,18 @@ namespace api_csharp.domain.utils
             return models;
         }
 
-        public T ToModel(SqlDataReader sqlDataReader)
+        public T ToModel(SqlDataReader sqlDataReader, bool isOneObject = false)
         {
-            return ToModel(sqlDataReader, (T?)Activator.CreateInstance(typeof(T)));
+            if (isOneObject)
+                while (sqlDataReader.Read())
+                    return ToModel(sqlDataReader, (T?)Activator.CreateInstance(typeof(T)));
+            else
+                return ToModel(sqlDataReader, (T?)Activator.CreateInstance(typeof(T)));
+
+            return default(T);
         }
 
-        public T ToModel(SqlDataReader sqlDataReader, T? model)
+        private T ToModel(SqlDataReader sqlDataReader, T? model)
         {
             var columns = Enumerable.Range(0, sqlDataReader.FieldCount).Select(sqlDataReader.GetName).ToList();
             Type type = typeof(T);

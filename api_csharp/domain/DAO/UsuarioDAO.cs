@@ -58,11 +58,8 @@ namespace domain.DAO
 
                     var sqlDataReader = sqlCommand.ExecuteReader();
 
-                    if (sqlDataReader.Read())
-                    {
-                        var resultSetToModel = new ResultSetToModel<Usuario>();
-                        usuario = resultSetToModel.ToModel(sqlDataReader, usuario);
-                    }
+                    var resultSetToModel = new ResultSetToModel<Usuario>();
+                    usuario = resultSetToModel.ToModel(sqlDataReader, true);
 
                     sqlConnection.Close();
                 }
@@ -112,11 +109,8 @@ namespace domain.DAO
 
                     using (var sqlDataReader = sqlCommand.ExecuteReader())
                     {
-                        if (sqlDataReader.Read())
-                        {
-                            var resultSetToModel = new ResultSetToModel<Usuario>();
-                            usuario = resultSetToModel.ToModel(sqlDataReader, new Usuario());
-                        }
+                        var resultSetToModel = new ResultSetToModel<Usuario>();
+                        usuario = resultSetToModel.ToModel(sqlDataReader, true);
                     }
                 }
                 return usuario;
@@ -135,17 +129,13 @@ namespace domain.DAO
                 using (var sqlConnection = new SqlConnection(ConexaoDAO.URLCONEXAO))
                 {
                     sqlConnection.Open();
-
                     using (var sqlCommand = new SqlCommand("SELECT * FROM usuarios AS u WHERE u.Nome = @nome;", sqlConnection))
                     {
                         sqlCommand.Parameters.AddWithValue("@nome", nome);
 
                         var sqlDataReader = sqlCommand.ExecuteReader();
-                        if (sqlDataReader.Read())
-                        {
-                            var resultSetToModel = new ResultSetToModel<Usuario>();
-                            usuario = resultSetToModel.ToModel(sqlDataReader, new Usuario());
-                        }
+                        var resultSetToModel = new ResultSetToModel<Usuario>();
+                        usuario = resultSetToModel.ToModel(sqlDataReader, true);
                     }
                 }
                 return usuario;

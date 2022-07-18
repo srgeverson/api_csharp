@@ -48,7 +48,7 @@ namespace api_csharp.API.v1.controller
             usuario = usuarioService.BuscarPorNome(usuarioRequest.Nome);
             if (usuario != null)
                 return apiExceptionHandler.GetProblema((int)HttpStatusCode.Conflict, string.Format("Já existe usuário cadastrado com o Nome: {0}", usuarioRequest.Nome));
-            
+
             usuario = usuarioMapper.ToModel(usuarioRequest);
             var usuarioAtualizado = usuarioService.AlterarPorId(usuario, id);
             if (usuarioAtualizado)
@@ -79,7 +79,7 @@ namespace api_csharp.API.v1.controller
                 return NoContent();
             }
             else
-                return apiExceptionHandler.GetProblema(404, string.Format("Não foi encontrado usuário com Id: {0}", id));
+                return apiExceptionHandler.GetProblema((int)HttpStatusCode.NotFound, string.Format("Não foi encontrado usuário com Id: {0}", id));
         }
 
         /// <summary>
@@ -94,13 +94,13 @@ namespace api_csharp.API.v1.controller
         [ProducesResponseType(typeof(List<UsuarioResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
-        public UsuarioResponse BuscarPorId(int id)
+        public ActionResult<UsuarioResponse> BuscarPorId(int id)
         {
             var usuarioResponse = usuarioMapper.ToResponse(usuarioService.BuscarPorId(id));
             if (usuarioResponse != null)
                 return usuarioResponse;
             else
-                throw new HttpRequestException(string.Format("Não foi encontrado usuário com Id: {0}", id), null, HttpStatusCode.NotFound);
+                return apiExceptionHandler.GetProblema((int)HttpStatusCode.NotFound, string.Format("Não foi encontrado usuário com Id: {0}", id));
         }
 
         /// <summary>
@@ -126,10 +126,7 @@ namespace api_csharp.API.v1.controller
                 return Created(string.Empty, usuarioMapper.ToResponse(usuario));
             }
             else
-                return apiExceptionHandler.GetProblema(
-                    (int)HttpStatusCode.Conflict,
-                    string.Format("Já existe usuário cadastrado com o Nome: {0}", usuarioRequest.Nome)
-                    );
+                return apiExceptionHandler.GetProblema((int)HttpStatusCode.Conflict, string.Format("Já existe usuário cadastrado com o Nome: {0}", usuarioRequest.Nome));
 
         }
 
@@ -142,7 +139,6 @@ namespace api_csharp.API.v1.controller
         [HttpGet]
         [Route("")]
         [ProducesResponseType(typeof(List<UsuarioResponse>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
         public List<UsuarioResponse> Todos()
         {
