@@ -22,6 +22,10 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 
 * **Swashbuckle.AspNetCore.Filters 6.2.3**
 
+* **System.IdentityModel.Tokens.Jwt**
+
+* **Microsoft.AspNetCore.Authentication.JwtBearer**
+
 ## 🎲 Rodando a aplicação em desenvolvimento
 
 ```bash

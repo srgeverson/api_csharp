@@ -2,7 +2,7 @@
 
 namespace api_csharp.API.v1.model
 {
-    public class UsuarioRequest
+    public class UsuarioLoginRequest
     {
         /// <summary>
         /// Nome de usuário para acessar a conta

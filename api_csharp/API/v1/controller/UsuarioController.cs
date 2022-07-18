@@ -1,8 +1,10 @@
 ﻿using api_csharp.API.exceptionhandler;
 using api_csharp.API.v1.mapper;
 using api_csharp.API.v1.model;
+using api_csharp.core;
 using api_csharp.domain.service;
 using domain.DAO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Mime;
@@ -35,6 +37,7 @@ namespace api_csharp.API.v1.controller
         /// <param name="id" example="37">Código do usuário a ser alterado.</param>
         [HttpPut]
         [Route("{id?}")]
+        [Authorize(Roles = "employee,manager")]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status409Conflict)]
@@ -67,6 +70,7 @@ namespace api_csharp.API.v1.controller
         /// <param name="id" example="123">Código do usuário a ser apagado.</param>
         [HttpDelete]
         [Route("{id?}")]
+        [Authorize(Roles = "manager")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
@@ -91,6 +95,7 @@ namespace api_csharp.API.v1.controller
         /// <param name="id" example="123">Código do usuário a ser consultado.</param>
         [HttpGet]
         [Route("{id?}")]
+        [Authorize(Roles = "UNDEFINED")]
         [ProducesResponseType(typeof(List<UsuarioResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
@@ -111,6 +116,7 @@ namespace api_csharp.API.v1.controller
         /// <response code="500">Erro interno de sistema.</response>
         [HttpPost]
         [Route("")]
+        [Authorize(Roles = "employee,manager")]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
@@ -138,11 +144,42 @@ namespace api_csharp.API.v1.controller
         /// <response code="500">Erro interno de sistema.</response>
         [HttpGet]
         [Route("")]
+        [Authorize]
         [ProducesResponseType(typeof(List<UsuarioResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
         public List<UsuarioResponse> Todos()
         {
             return usuarioMapper.ToListResponse(usuarioService.Todos());
+        }
+
+        [HttpPost]
+        [Route("login")]
+        [AllowAnonymous]
+        public async Task<ActionResult<dynamic>> Authenticate([FromBody] UsuarioLoginRequest usuarioLoginRequest)
+        {
+            // Recupera o usuário
+            var usuario = usuarioService.BuscarPorNome(usuarioLoginRequest.Nome);
+
+            // Verifica se o usuário existe
+            if (usuario == null)
+                return NotFound(new { message = "Usuário não encontrado!" });
+
+            if (!usuario.Senha.Equals(usuarioLoginRequest.Senha))
+                return BadRequest(new { message = "Senha inválida!" });
+
+            // Gera o Token
+            var authorizationServer = new AuthorizationServer();
+            var token = authorizationServer.GenerateToken(usuario);
+
+            // Oculta a senha
+            usuarioLoginRequest.Senha = "";
+
+            // Retorna os dados
+            return new
+            {
+                user = usuario,
+                token = token
+            };
         }
     }
 }

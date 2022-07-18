@@ -1,34 +1,22 @@
 using api_csharp.API.exceptionhandler;
 using domain.DAO;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using System.Text;
+
+//Teste
+IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.Development.json")
+                .Build();
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddGlobalExceptionHandlerMiddleware();
-//builder.Services.AddProblemDetails(setup =>
-//{
-//    setup.Map<FaultException<BusinessFault>>((context, exception) =>
-//    {
-//        // resolve logger
-//        var logger = context.RequestServices.GetRequiredService<ILogger<ProblemDetails>>();
-
-//        // log exception to Seq
-//        logger.LogError(exception, "{@Exception} occurred.", exception);
-
-//        // return the problem details map   
-//        return new ProblemDetails
-//        {
-//            Title = exception.Message,
-//            Detail = exception.Detail.FaultMessage,
-//            Status = exception.Detail.FaultType.ToHttpStatus(),
-//            Type = exception.Detail.FaultType.ToString(),
-//            Instance = exception.Detail.FaultReference
-//        };
-//    });
-//});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -57,28 +45,46 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
+var secret = configuration.GetSection("OAuth")["Secret"];
+var key = Encoding.ASCII.GetBytes(secret);
+
+builder.Services.AddAuthentication(option =>
+{
+    option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(option =>
+{
+    option.RequireHttpsMetadata = false;
+    option.SaveToken = true;
+    option.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
+
 var app = builder.Build();
+
+//IConfigurationRoot configuration = new ConfigurationBuilder()
+//                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+//                .AddJsonFile(app.Environment.IsDevelopment() ? "appsettings.Development.json" : "appsettings.json")
+//                .Build();
 
 // Configure the HTTP request pipeline.
 app.UseGlobalExceptionHandlerMiddleware();
+
 if (app.Environment.IsDevelopment())
 {
-    IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.Development.json")
-                .Build();
-    ConexaoDAO.URLCONEXAO = configuration.GetSection("ConnectionString")["DefaultConnection"];
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-else
-{
-    IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.json")
-                .Build();
-    ConexaoDAO.URLCONEXAO = configuration.GetSection("ConnectionString")["DefaultConnection"];
-}
+
+ConexaoDAO.URLCONEXAO = configuration.GetSection("ConnectionString")["DefaultConnection"];
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseHttpsRedirection();
 
