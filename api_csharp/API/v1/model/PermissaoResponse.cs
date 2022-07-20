@@ -2,16 +2,16 @@
 
 namespace api_csharp.API.v1.model
 {
-    public class UsuarioLoginResponse
+    public class PermissaoResponse
     {
         /// <summary>
-        /// Identificador do usuário
+        /// Identificador da permissão
         /// </summary>
         /// <example>srgeverson</example>
         public int Id { get; set; }
 
         /// <summary>
-        /// Nome de login do usuário
+        /// Nome da permissão
         /// </summary>
         /// <example>q1w2e3r4</example>
         public string? Nome { get; set; }

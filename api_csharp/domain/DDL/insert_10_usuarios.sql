@@ -3,7 +3,16 @@
  * Time: 20/06/2022 00:32:25
  ************************************************************/
 
-DECLARE @count INT = 10;
+--DESATIVAR IDENTITY TABELA
+SET IDENTITY_INSERT usuarios ON
+
+INSERT INTO usuarios (id, nome, senha, ativo)
+VALUES (1, 'geverson', '123456', 1);
+
+--ATIVAR IDENTITY TABELA
+SET IDENTITY_INSERT usuarios OFF
+
+DECLARE @count INT = 9;
 DECLARE @index INT = 0;
 WHILE @index < @count
 BEGIN

@@ -21,9 +21,9 @@ builder.Services.AddGlobalExceptionHandlerMiddleware();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
+builder.Services.AddSwaggerGen(option =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo
+    option.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
         Title = "API de Gerenciamento de Usuários.",
@@ -40,9 +40,32 @@ builder.Services.AddSwaggerGen(options =>
             Url = new Uri("https://github.com/srgeverson/api_csharp")
         }
     });
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Insira o token validado aqui",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer",
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
     // using System.Reflection;
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+    option.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
 var secret = configuration.GetSection("OAuth")["Secret"];

@@ -5,5 +5,17 @@
  USE [master];
  GO
  
-CREATE DATABASE db_teste;  
-GO 
+ CREATE DATABASE db_teste;  
+ GO 
+
+ USE [db_teste];
+ GO
+
+ DROP TABLE IF EXISTS usuarios_permissoes;  
+ GO  
+
+ DROP TABLE IF EXISTS permissoes;  
+ GO  
+
+ DROP TABLE IF EXISTS usuarios;  
+ GO  

@@ -15,7 +15,7 @@ namespace api_csharp.API.v1.mapper
 
         public UsuarioLoginResponse ToLoginResponse(Usuario? usuario)
         {
-            var config = new MapperConfiguration(cfg => cfg.CreateMap<Usuario, UsuarioResponse>());
+            var config = new MapperConfiguration(cfg => cfg.CreateMap<Usuario, UsuarioLoginResponse>());
             var mapper = new Mapper(config);
             return mapper.Map<UsuarioLoginResponse>(usuario);
         }

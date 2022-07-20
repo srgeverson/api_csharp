@@ -3,7 +3,7 @@
     public class UsuarioResponse
     {
         /// <summary>
-        /// Nome de login do usuário
+        /// Identificador do usuário
         /// </summary>
         /// <example>srgeverson</example>
         public int Id { get; set; }

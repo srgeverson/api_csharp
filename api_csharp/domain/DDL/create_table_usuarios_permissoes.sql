@@ -3,10 +3,10 @@
  * Time: 19/06/2022 15:02:35
  ************************************************************/
 
-CREATE TABLE usuarios
+CREATE TABLE usuarios_permissoes
 (
 	id        INT NOT NULL IDENTITY(1, 1) PRIMARY KEY,
-	nome      VARCHAR(220) NOT NULL,
-	senha     VARCHAR(220) NOT NULL,
+	usuarioId INT NOT NULL FOREIGN KEY REFERENCES usuarios(id),
+	permissaoId INT NOT NULL FOREIGN KEY REFERENCES permissoes(id),
 	ativo     TINYINT NOT NULL
 );
