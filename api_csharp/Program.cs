@@ -6,12 +6,6 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
 
-//Teste
-IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-                .AddJsonFile("appsettings.Development.json")
-                .Build();
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -23,21 +17,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
+    var urlAPI = builder.Configuration.GetSection("OAuth")["Secret"];
+
     option.SwaggerDoc("v1", new OpenApiInfo
     {
         Version = "v1",
         Title = "API de Gerenciamento de Usuários.",
         Description = "Gerenciar e acompahar os acessos",
-        TermsOfService = new Uri("https://github.com/srgeverson/api_csharp"),
+        TermsOfService = new Uri(builder.Configuration.GetSection("OpenApiInfo")["UrlTermsOfService"]),
         Contact = new OpenApiContact
         {
             Name = "Contrato",
-            Url = new Uri("https://github.com/srgeverson/api_csharp")
+            Url = new Uri(builder.Configuration.GetSection("OpenApiInfo")["UrlContact"])
         },
         License = new OpenApiLicense
         {
             Name = "Licença",
-            Url = new Uri("https://github.com/srgeverson/api_csharp")
+            Url = new Uri(builder.Configuration.GetSection("OpenApiInfo")["UrlLicense"])
         }
     });
     option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -68,7 +64,7 @@ builder.Services.AddSwaggerGen(option =>
     option.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
-var secret = configuration.GetSection("OAuth")["Secret"];
+var secret = builder.Configuration.GetSection("OAuth")["Secret"];
 var key = Encoding.ASCII.GetBytes(secret);
 
 builder.Services.AddAuthentication(option =>
@@ -90,21 +86,13 @@ builder.Services.AddAuthentication(option =>
 
 var app = builder.Build();
 
-//IConfigurationRoot configuration = new ConfigurationBuilder()
-//                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
-//                .AddJsonFile(app.Environment.IsDevelopment() ? "appsettings.Development.json" : "appsettings.json")
-//                .Build();
+ConexaoDAO.URLCONEXAO = app.Configuration.GetSection("ConnectionString")["DefaultConnection"];
 
 // Configure the HTTP request pipeline.
 app.UseGlobalExceptionHandlerMiddleware();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-ConexaoDAO.URLCONEXAO = configuration.GetSection("ConnectionString")["DefaultConnection"];
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseAuthentication();
 app.UseAuthorization();
