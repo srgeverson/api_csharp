@@ -1,13 +1,13 @@
 /************************************************************
- * Code formatted by SoftTree SQL Assistant © v11.0.35
+ * Code formatted by SoftTree SQL Assistant ï¿½ v11.0.35
  * Time: 20/06/2022 00:32:25
  ************************************************************/
 
 --DESATIVAR IDENTITY TABELA
 SET IDENTITY_INSERT usuarios ON
 
-INSERT INTO usuarios (id, nome, senha, ativo)
-VALUES (1, 'geverson', '123456', 1);
+INSERT INTO usuarios (id, nome, senha, ativo, dataCriacao)
+VALUES (1, 'geverson', '123456', 1, GETDATE());
 
 --ATIVAR IDENTITY TABELA
 SET IDENTITY_INSERT usuarios OFF
@@ -21,7 +21,8 @@ BEGIN
         -- id -- this column value is auto-generated
         nome,
         senha,
-        ativo
+        ativo,
+        dataCriacao
       )
     VALUES
       (
@@ -30,7 +31,8 @@ BEGIN
         CASE 
              WHEN @index % 2 = 0 THEN 1
              ELSE 0
-        END
+        END,
+        GETDATE() - @index
       )
     
     SET @index = @index + 1;
