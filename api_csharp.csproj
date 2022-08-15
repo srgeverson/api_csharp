@@ -35,8 +35,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\testes\AppClassLibraryClient\AppClassLibraryClient.csproj" />
-    <ProjectReference Include="..\testes\AppClassLibraryDomain\AppClassLibraryDomain.csproj" />
+    <ProjectReference Include="..\AppClassLibraryClient\AppClassLibraryClient.csproj" />
+    <ProjectReference Include="..\AppClassLibraryDomain\AppClassLibraryDomain.csproj" />
   </ItemGroup>
 
 </Project>
