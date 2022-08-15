@@ -22,7 +22,8 @@ namespace api_csharp.core
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim(ClaimTypes.Name, usuario.Nome.ToString()),
-                    new Claim(ClaimTypes.Role, string.Join(",",permissoes.ToArray()))
+                    //new Claim(ClaimTypes.Role, string.Join(",",permissoes.ToArray()))
+                    new Claim(ClaimTypes.Role, "1")
                 }),
                 Expires = DateTime.UtcNow.AddHours(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

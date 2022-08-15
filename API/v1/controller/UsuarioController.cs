@@ -96,7 +96,7 @@ namespace api_csharp.API.v1.controller
         /// <param name="id" example="123">Código do usuário a ser consultado.</param>
         [HttpGet]
         [Route("{id?}")]
-        [Authorize(Roles = "EMPLOYEE")]
+        [Authorize(Roles = "listar_usuario")]
         [ProducesResponseType(typeof(List<UsuarioResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
@@ -117,7 +117,7 @@ namespace api_csharp.API.v1.controller
         /// <response code="500">Erro interno de sistema.</response>
         [HttpPost]
         [Route("")]
-        [Authorize(Roles = "MANAGER,EMPLOYEE")]
+        [Authorize(Roles = "cadastrar_usuario")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
@@ -142,12 +142,12 @@ namespace api_csharp.API.v1.controller
         [AllowAnonymous]
         public ActionResult<UsuarioLoginResponse> Logar([FromBody] UsuarioLoginRequest usuarioLoginRequest)
         {
-            var usuario = usuarioService.BuscarPorNome(usuarioLoginRequest.Nome);
+            var usuario = usuarioService.BuscarPorEmail(usuarioLoginRequest.Email);
 
             if (usuario == null)
                 return apiExceptionHandler.GetProblema((int)HttpStatusCode.NotFound, "Usuário não encontrado!");
 
-            if (!usuario.Senha.Equals(usuarioLoginRequest.Senha))
+            if (!usuarioService.ValidarSenha(usuarioLoginRequest.Senha, usuario.Senha))
                 return apiExceptionHandler.GetProblema((int)HttpStatusCode.BadRequest, "Senha inválida!");
 
             if (usuario.Ativo == false)
@@ -169,7 +169,7 @@ namespace api_csharp.API.v1.controller
         /// <response code="500">Erro interno de sistema.</response>
         [HttpGet]
         [Route("")]
-        [Authorize(Roles = "EMPLOYEE")]
+        [Authorize(Roles = "1,2")]
         [ProducesResponseType(typeof(List<UsuarioResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
         public ActionResult<List<UsuarioResponse>> Todos()
