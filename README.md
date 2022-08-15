@@ -12,10 +12,6 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 
 ## 🚀 Dependências utilizadas
 
-* **System.Data.SqlClient 4.8.3**
-
-* **AutoMapper 11.0.1**
-
 * **AutoMapper.Extensions.Microsoft.DependencyInjection 11.0.0**
 
 * **Microsoft.AspNetCore.Mvc.NewtonsoftJson 6.0.6**
