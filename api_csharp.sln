@@ -10,9 +10,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppClassLibraryClient", "..\testes\AppClassLibraryClient\AppClassLibraryClient.csproj", "{4C3CF3EE-C74A-4A7B-9379-7D9230DC68C5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppClassLibraryClient", "..\AppClassLibraryClient\AppClassLibraryClient.csproj", "{4C3CF3EE-C74A-4A7B-9379-7D9230DC68C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppClassLibraryDomain", "..\testes\AppClassLibraryDomain\AppClassLibraryDomain.csproj", "{65A88341-C457-42B2-8C3E-93AE8140F39B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AppClassLibraryDomain", "..\AppClassLibraryDomain\AppClassLibraryDomain.csproj", "{65A88341-C457-42B2-8C3E-93AE8140F39B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
