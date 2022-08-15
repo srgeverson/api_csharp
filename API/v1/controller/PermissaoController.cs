@@ -1,7 +1,7 @@
 ﻿using api_csharp.API.exceptionhandler;
-using api_csharp.API.v1.mapper;
-using api_csharp.API.v1.model;
-using api_csharp.domain.service;
+using AppClassLibraryClient.mapper;
+using AppClassLibraryClient.model;
+using AppClassLibraryDomain.service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Mime;
