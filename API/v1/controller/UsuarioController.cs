@@ -2,6 +2,7 @@
 using api_csharp.core;
 using AppClassLibraryClient.mapper;
 using AppClassLibraryClient.model;
+using AppClassLibraryDomain.facade;
 using AppClassLibraryDomain.service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,17 +16,19 @@ namespace api_csharp.API.v1.controller
     [Produces(MediaTypeNames.Application.Json)]
     public class UsuarioController : ControllerBase
     {
-        private ApiExceptionHandler apiExceptionHandler;
-        private UsuarioMapper usuarioMapper;
-        private UsuarioService usuarioService;
-        private PermissaoService permissaoService;
+        private ApiExceptionHandler _apiExceptionHandler;
+        private UsuarioMapper _usuarioMapper;
+        private IUsuarioService _usuarioService;
+        private IPermissaoService _permissaoService;
+        private IAuthorizationServerFacade _authorizationServerFacade;
 
-        public UsuarioController() : base()
+        public UsuarioController(IUsuarioService usuarioService, IPermissaoService permissaoService, IAuthorizationServerFacade authorizationServerFacade) : base()
         {
-            usuarioMapper = new UsuarioMapper();
-            apiExceptionHandler = new ApiExceptionHandler();
-            usuarioService = new UsuarioService();
-            permissaoService = new PermissaoService();
+            _usuarioService = usuarioService;
+            _permissaoService = permissaoService;
+            _apiExceptionHandler = new ApiExceptionHandler();
+            _usuarioMapper = new UsuarioMapper();
+            _authorizationServerFacade = authorizationServerFacade;
         }
 
         /// <summary>
@@ -43,22 +46,22 @@ namespace api_csharp.API.v1.controller
         [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
-        public ActionResult<UsuarioResponse> Alterar(int id, [FromBody] UsuarioRequest usuarioRequest)
+        public ActionResult<UsuarioResponse> Alterar(long id, [FromBody] UsuarioRequest usuarioRequest)
         {
-            var usuario = usuarioService.BuscarPorId(id);
+            var usuario = _usuarioService.BuscarPorId(id);
             if (usuario == null)
-                return apiExceptionHandler.GetProblema(404, string.Format("Não foi encontrado usuário com Id: {0}", id));
+                return _apiExceptionHandler.GetProblema(404, string.Format("Não foi encontrado usuário com Id: {0}", id));
 
-            usuario = usuarioService.BuscarPorNome(usuarioRequest.Nome);
+            usuario = _usuarioService.BuscarPorNome(usuarioRequest.Nome);
             if (usuario != null)
-                return apiExceptionHandler.GetProblema((int)HttpStatusCode.Conflict, string.Format("Já existe usuário cadastrado com o Nome: {0}", usuarioRequest.Nome));
+                return _apiExceptionHandler.GetProblema((int)HttpStatusCode.Conflict, string.Format("Já existe usuário cadastrado com o Nome: {0}", usuarioRequest.Nome));
 
-            usuario = usuarioMapper.ToModel(usuarioRequest);
-            var usuarioAtualizado = usuarioService.AlterarPorId(usuario, id);
-            if (usuarioAtualizado)
-                usuario = usuarioService.BuscarPorId(id);
+            usuario = _usuarioMapper.ToModel(usuarioRequest);
+            _usuarioService.Alterar(usuario);
+            //if (usuarioAtualizado)
+            //    usuario = _usuarioService.BuscarPorId(id);
 
-            return Ok(usuarioMapper.ToResponse(usuario));
+            return Ok(_usuarioMapper.ToResponse(usuario));
 
         }
 
@@ -75,16 +78,16 @@ namespace api_csharp.API.v1.controller
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
-        public ActionResult ApagarPorId(int id)
+        public ActionResult ApagarPorId(long id)
         {
-            var usuarioResponse = usuarioMapper.ToResponse(usuarioService.BuscarPorId(id));
+            var usuarioResponse = _usuarioMapper.ToResponse(_usuarioService.BuscarPorId(id));
             if (usuarioResponse != null)
             {
-                usuarioService.ApagarPorId(id);
+                _usuarioService.Excluir(id);
                 return NoContent();
             }
             else
-                return apiExceptionHandler.GetProblema((int)HttpStatusCode.NotFound, string.Format("Não foi encontrado usuário com Id: {0}", id));
+                return _apiExceptionHandler.GetProblema((int)HttpStatusCode.NotFound, string.Format("Não foi encontrado usuário com Id: {0}", id));
         }
 
         /// <summary>
@@ -100,13 +103,13 @@ namespace api_csharp.API.v1.controller
         [ProducesResponseType(typeof(List<UsuarioResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
-        public ActionResult<UsuarioResponse> BuscarPorId(int id)
+        public ActionResult<UsuarioResponse> BuscarPorId(long id)
         {
-            var usuarioResponse = usuarioMapper.ToResponse(usuarioService.BuscarPorId(id));
+            var usuarioResponse = _usuarioMapper.ToResponse(_usuarioService.BuscarPorId(id));
             if (usuarioResponse != null)
                 return usuarioResponse;
             else
-                return apiExceptionHandler.GetProblema((int)HttpStatusCode.NotFound, string.Format("Não foi encontrado usuário com Id: {0}", id));
+                return _apiExceptionHandler.GetProblema((int)HttpStatusCode.NotFound, string.Format("Não foi encontrado usuário com Id: {0}", id));
         }
 
         /// <summary>
@@ -123,17 +126,17 @@ namespace api_csharp.API.v1.controller
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
         public ActionResult<UsuarioResponse> Cadastrar([FromBody] UsuarioRequest usuarioRequest)
         {
-            var usuario = usuarioService.BuscarPorNome(usuarioRequest.Nome);
+            var usuario = _usuarioService.BuscarPorNome(usuarioRequest.Nome);
 
             if (usuario == null)
             {
-                usuario = usuarioMapper.ToModel(usuarioRequest);
+                usuario = _usuarioMapper.ToModel(usuarioRequest);
                 usuario.Ativo = true;
-                usuario = usuarioService.Cadastrar(usuario);
-                return Created(string.Empty, usuarioMapper.ToResponse(usuario));
+                _usuarioService.Adicionar(usuario);
+                return Created(string.Empty, _usuarioMapper.ToResponse(usuario));
             }
             else
-                return apiExceptionHandler.GetProblema((int)HttpStatusCode.Conflict, string.Format("Já existe usuário cadastrado com o Nome: {0}", usuarioRequest.Nome));
+                return _apiExceptionHandler.GetProblema((int)HttpStatusCode.Conflict, string.Format("Já existe usuário cadastrado com o Nome: {0}", usuarioRequest.Nome));
 
         }
 
@@ -142,21 +145,21 @@ namespace api_csharp.API.v1.controller
         [AllowAnonymous]
         public ActionResult<UsuarioLoginResponse> Logar([FromBody] UsuarioLoginRequest usuarioLoginRequest)
         {
-            var usuario = usuarioService.BuscarPorEmail(usuarioLoginRequest.Email);
+            var usuario = _usuarioService.BuscarPorEmail(usuarioLoginRequest.Email);
 
             if (usuario == null)
-                return apiExceptionHandler.GetProblema((int)HttpStatusCode.NotFound, "Usuário não encontrado!");
+                return _apiExceptionHandler.GetProblema((int)HttpStatusCode.NotFound, "Usuário não encontrado!");
 
-            if (!usuarioService.ValidarSenha(usuarioLoginRequest.Senha, usuario.Senha))
-                return apiExceptionHandler.GetProblema((int)HttpStatusCode.BadRequest, "Senha inválida!");
+            if (!_usuarioService.ValidarSenha(usuarioLoginRequest.Senha, usuario.Senha))
+                return _apiExceptionHandler.GetProblema((int)HttpStatusCode.BadRequest, "Senha inválida!");
 
             if (usuario.Ativo == false)
-                return apiExceptionHandler.GetProblema((int)HttpStatusCode.BadRequest, "Usuário desativado!");
+                return _apiExceptionHandler.GetProblema((int)HttpStatusCode.BadRequest, "Usuário desativado!");
 
-            var permissoes = permissaoService.PermissoesPorNomeUsuario(usuario.Nome).Select(permisaoNome => permisaoNome.Nome).ToArray();
+            var permissoes = _permissaoService.ListarTodos().Select(permisaoNome => permisaoNome.Nome).ToArray();
             var authorizationServer = new AuthorizationServer();
 
-            var usuarioLoginResponse = usuarioMapper.ToLoginResponse(usuario);
+            var usuarioLoginResponse = _usuarioMapper.ToLoginResponse(usuario);
             usuarioLoginResponse.Token = authorizationServer.GenerateToken(usuario, permissoes);
             return usuarioLoginResponse;
         }
@@ -170,11 +173,11 @@ namespace api_csharp.API.v1.controller
         [HttpGet]
         [Route("")]
         [Authorize(Roles = "1,2")]
-        [ProducesResponseType(typeof(List<UsuarioResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IList<UsuarioResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
-        public ActionResult<List<UsuarioResponse>> Todos()
+        public ActionResult<IList<UsuarioResponse>> Todos()
         {
-            return usuarioMapper.ToListResponse(usuarioService.Todos());
+            return (List<UsuarioResponse>)_usuarioMapper.ToListResponse(_usuarioService.ListarTodos());
         }
     }
 }

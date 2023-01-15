@@ -1,6 +1,7 @@
 ﻿using api_csharp.API.exceptionhandler;
 using AppClassLibraryClient.mapper;
 using AppClassLibraryClient.model;
+using AppClassLibraryDomain.model;
 using AppClassLibraryDomain.service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +15,12 @@ namespace api_csharp.API.v1.controller
     public class PermissaoController : ControllerBase
     {
         private PermissaoMapper permissaoMapper;
-        private PermissaoService permissaoService;
+        private IPermissaoService _permissaoService;
 
-        public PermissaoController() : base()
+        public PermissaoController(IPermissaoService permissaoService) : base()
         {
             permissaoMapper = new PermissaoMapper();
-            permissaoService = new PermissaoService();
+            _permissaoService = permissaoService;
         }
 
         /// <summary>
@@ -30,11 +31,11 @@ namespace api_csharp.API.v1.controller
         [HttpGet]
         [Route("")]
         [Authorize]
-        [ProducesResponseType(typeof(List<PermissaoResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IList<PermissaoResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
-        public ActionResult<List<PermissaoResponse>> Todos()
+        public ActionResult<IList<PermissaoResponse>> Todos()
         {
-            return permissaoMapper.ToListResponse(permissaoService.Todos());
+            return permissaoMapper.ToListResponse((List<Permissao>)_permissaoService.ListarTodos());
         }
     }
 }

@@ -1,5 +1,8 @@
 using api_csharp.API.exceptionhandler;
 using AppClassLibraryDomain.DAO;
+using AppClassLibraryDomain.DAO.SQL;
+using AppClassLibraryDomain.facade;
+using AppClassLibraryDomain.service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -12,7 +15,35 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddGlobalExceptionHandlerMiddleware();
 
+#region DI
+
+//Others
+//builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+//builder.Services.AddSingleton<ISessaoUsuarioHelper, SessaoUsuarioHelper>();
+
+//DAO
+var conexao = Environment.GetEnvironmentVariable("CONNECTION_STRING_AspNetMVC");
+//ConexaoDAO.URLCONEXAO = app.Configuration.GetSection("ConnectionString")["DefaultConnection"];
+builder.Services.AddSingleton<IPermissaoDAO>(new PermissaoSQLDAO() { UrlConnection = conexao });
+builder.Services.AddSingleton<ISistemaDAO>(new SistemaSQLDAO() { UrlConnection = conexao });
+builder.Services.AddSingleton<IUsuarioDAO>(new UsuarioSQLDAO() { UrlConnection = conexao });
+builder.Services.AddSingleton<IUsuarioPermissaoDAO>(new UsuarioPermissaoSQLDAO() { UrlConnection = conexao });
+
+//Sevices
+builder.Services.AddSingleton<IPermissaoService, PermissaoService>();
+builder.Services.AddSingleton<ISistemaService, SistemaService>();
+builder.Services.AddSingleton<IUsuarioPermissaoService, UsuarioPermissaoService>();
+builder.Services.AddSingleton<IUsuarioService, UsuarioService>();
+
+//Facades
+builder.Services.AddSingleton<IAuthorizationServerFacade, AuthorizationServerFacade>();
+
+#endregion
+
 builder.Services.AddControllers();
+
+#region Open API
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
@@ -64,6 +95,10 @@ builder.Services.AddSwaggerGen(option =>
     option.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
+#endregion
+
+#region Authorization
+
 var secret = builder.Configuration.GetSection("OAuth")["Secret"];
 var key = Encoding.ASCII.GetBytes(secret);
 
@@ -84,9 +119,9 @@ builder.Services.AddAuthentication(option =>
     };
 });
 
-var app = builder.Build();
+#endregion
 
-ConexaoDAO.URLCONEXAO = app.Configuration.GetSection("ConnectionString")["DefaultConnection"];
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseGlobalExceptionHandlerMiddleware();
