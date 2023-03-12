@@ -1,10 +1,10 @@
 using System.Data;
 using System.Net.Mime;
 using Microsoft.AspNetCore.Mvc;
-using api_csharp.API.Controllers.v2.Model;
-using api_csharp.API.Controllers.v2.ExceptionHandlers;
+using api_csharp.API.v2.ExceptionHandlers;
+using api_csharp.API.v2.Models;
 
-namespace api_csharp.API.Controllers.v2;
+namespace api_csharp.API.v2.Controllers;
 
 [ApiController]
 [ApiVersion("2.0")]

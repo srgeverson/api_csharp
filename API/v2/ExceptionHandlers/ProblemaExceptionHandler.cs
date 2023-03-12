@@ -1,4 +1,4 @@
-﻿namespace api_csharp.API.Controllers.v2.ExceptionHandlers
+﻿namespace api_csharp.API.v2.ExceptionHandlers
 {
     /// <summary>
     /// Representação de Erro encontrato

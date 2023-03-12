@@ -1,4 +1,4 @@
-namespace api_csharp.API.Controllers.v2.Model;
+namespace api_csharp.API.v2.Models;
 
 public class UsuarioBasicoResponse
 {

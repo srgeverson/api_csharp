@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="API\Controllers\v1\" />
+    <Folder Include="API\v1\" />
   </ItemGroup>
 
 </Project>
