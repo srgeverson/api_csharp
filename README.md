@@ -10,14 +10,16 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 💡
 
 ## 🚀 Dependências utilizadas
-* **
+* ** Microsoft.AspNetCore.OpenApi 7.0.0
+* ** Swashbuckle.AspNetCore 6.4.0
 
 ## 🛠️ Constrção da aplicação
 
 ```bash
-### Criando a pasta do projeto, README.md e commitando pela priveira vez
-$ mkdir api_csharp
+### Criando o projeto, README.md e commitando pela primeira vez
+$ dotnet new webapi -o api_csharp
 $ cd api_csharp
+$ dotnet dev-certs https --trust
 $ echo "# API C#" >> README.md
 $ git init
 $ git add README.md
