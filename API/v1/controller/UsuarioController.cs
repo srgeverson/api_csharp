@@ -3,11 +3,13 @@ using api_csharp.core;
 using AppClassLibraryClient.mapper;
 using AppClassLibraryClient.model;
 using AppClassLibraryDomain.facade;
+using AppClassLibraryDomain.model.DTO;
 using AppClassLibraryDomain.service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Mime;
+using System.Reflection;
 
 namespace api_csharp.API.v1.controller
 {
@@ -21,6 +23,7 @@ namespace api_csharp.API.v1.controller
         private IUsuarioService _usuarioService;
         private IPermissaoService _permissaoService;
         private IAuthorizationServerFacade _authorizationServerFacade;
+        private ConfiguracaoTokenDTO _configuracaoTokenDTO;
 
         public UsuarioController(IUsuarioService usuarioService, IPermissaoService permissaoService, IAuthorizationServerFacade authorizationServerFacade) : base()
         {
@@ -29,6 +32,12 @@ namespace api_csharp.API.v1.controller
             _apiExceptionHandler = new ApiExceptionHandler();
             _usuarioMapper = new UsuarioMapper();
             _authorizationServerFacade = authorizationServerFacade;
+            _configuracaoTokenDTO = _authorizationServerFacade.ValidarConfigucaoDoToken(
+                Environment.GetEnvironmentVariable("secret"),
+                Environment.GetEnvironmentVariable("expired"),
+                Environment.GetEnvironmentVariable("token"),
+                Assembly.GetExecutingAssembly().GetName().Name
+            );
         }
 
         /// <summary>
@@ -41,7 +50,8 @@ namespace api_csharp.API.v1.controller
         /// <param name="id" example="37">Código do usuário a ser alterado.</param>
         [HttpPut]
         [Route("{id?}")]
-        [Authorize(Roles = "MANAGER,EMPLOYEE")]
+        [Authorize(Roles = "1")]
+        //[Authorize(Roles = "3,6")]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status409Conflict)]
@@ -74,7 +84,8 @@ namespace api_csharp.API.v1.controller
         /// <param name="id" example="123">Código do usuário a ser apagado.</param>
         [HttpDelete]
         [Route("{id?}")]
-        [Authorize(Roles = "MANAGER")]
+        [Authorize(Roles = "1")]
+        //[Authorize(Roles = "5")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
@@ -99,7 +110,8 @@ namespace api_csharp.API.v1.controller
         /// <param name="id" example="123">Código do usuário a ser consultado.</param>
         [HttpGet]
         [Route("{id?}")]
-        [Authorize(Roles = "listar_usuario")]
+        [Authorize(Roles = "1")]
+        //[Authorize(Roles = "2")]
         [ProducesResponseType(typeof(List<UsuarioResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
@@ -120,7 +132,8 @@ namespace api_csharp.API.v1.controller
         /// <response code="500">Erro interno de sistema.</response>
         [HttpPost]
         [Route("")]
-        [Authorize(Roles = "cadastrar_usuario")]
+        [Authorize(Roles = "1")]
+        //[Authorize(Roles = "4")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status409Conflict)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
@@ -156,11 +169,9 @@ namespace api_csharp.API.v1.controller
             if (usuario.Ativo == false)
                 return _apiExceptionHandler.GetProblema((int)HttpStatusCode.BadRequest, "Usuário desativado!");
 
-            var permissoes = _permissaoService.ListarTodos().Select(permisaoNome => permisaoNome.Nome).ToArray();
-            var authorizationServer = new AuthorizationServer();
-
+            long[] permissoesId = _authorizationServerFacade.PermissoesPorEmailESistema(usuario.Email, _configuracaoTokenDTO.App);
             var usuarioLoginResponse = _usuarioMapper.ToLoginResponse(usuario);
-            usuarioLoginResponse.Token = authorizationServer.GenerateToken(usuario, permissoes);
+            usuarioLoginResponse.Token = _authorizationServerFacade.GerarTokenNetCore(usuario, _configuracaoTokenDTO, permissoesId);//authorizationServer.GenerateToken(usuario, permissoes);
             return usuarioLoginResponse;
         }
 
@@ -172,7 +183,8 @@ namespace api_csharp.API.v1.controller
         /// <response code="500">Erro interno de sistema.</response>
         [HttpGet]
         [Route("")]
-        [Authorize(Roles = "1,2")]
+        [Authorize(Roles = "1")]
+        //[Authorize(Roles = "2")]
         [ProducesResponseType(typeof(IList<UsuarioResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(Problema), StatusCodes.Status500InternalServerError)]
         public ActionResult<IList<UsuarioResponse>> Todos()

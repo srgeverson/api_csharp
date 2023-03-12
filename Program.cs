@@ -22,7 +22,7 @@ builder.Services.AddGlobalExceptionHandlerMiddleware();
 //builder.Services.AddSingleton<ISessaoUsuarioHelper, SessaoUsuarioHelper>();
 
 //DAO
-var conexao = Environment.GetEnvironmentVariable("CONNECTION_STRING_AspNetMVC");
+var conexao = Environment.GetEnvironmentVariable("CONNECTION_STRING_api_csharp");
 //ConexaoDAO.URLCONEXAO = app.Configuration.GetSection("ConnectionString")["DefaultConnection"];
 builder.Services.AddSingleton<IPermissaoDAO>(new PermissaoSQLDAO() { UrlConnection = conexao });
 builder.Services.AddSingleton<ISistemaDAO>(new SistemaSQLDAO() { UrlConnection = conexao });
@@ -99,8 +99,7 @@ builder.Services.AddSwaggerGen(option =>
 
 #region Authorization
 
-var secret = builder.Configuration.GetSection("OAuth")["Secret"];
-var key = Encoding.ASCII.GetBytes(secret);
+var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("secret"));
 
 builder.Services.AddAuthentication(option =>
 {
@@ -115,7 +114,7 @@ builder.Services.AddAuthentication(option =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ValidateIssuer = false,
-        ValidateAudience = false
+        //ValidateAudience = false
     };
 });
 
