@@ -89,4 +89,4 @@ $ docker-compose up --build
 
 ## ✒️ Autor
 
-* **Geverson Souza** - [Geverson Souza](https://www.linkedin.com/in/srgeverson/)```
+* **Geverson Souza** - [Geverson Souza](https://www.linkedin.com/in/srgeverson/)
