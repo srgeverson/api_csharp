@@ -1,28 +1,25 @@
 version: '3'
-
 services:
-  APICSharp:
+  api_csharp:
     build:
       context: .
       dockerfile: Dockerfile
-    image: nodejs
-    container_name: APICSharp
+    image: api_csharp
+    container_name: api_csharp
     restart: unless-stopped
     env_file: .env
     environment:
-      - DATABASE_DIALECT=$DATABASE_DIALECT
+      - DATABASE_NAME=$DATABASE_NAME
+      - DATABASE_HOST=$DATABASE_HOST
+      - DATABASE_USERNAME=$DATABASE_USERNAME
+      - DATABASE_PASSWORD=$DATABASE_PASSWORD
     ports:
-      - "8080:8080"
-    volumes:
-      - .:/home/node/app
-      - node_modules:/home/node/app/node_modules
+      - "8080:80"
     networks:
-      - app-network
-    command: ./wait-for-it.sh 192.168.0.2:1433 -- /app app.js
-
+      - api-network
+    command: ./wait-for-it.sh 192.168.0.2:1433 -- /app 
 networks:
-  app-network:
+  api-network:
     driver: bridge
-
 volumes:
   node_modules:        

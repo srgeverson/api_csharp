@@ -78,6 +78,9 @@ $ docker build -t api_csharp .
 # Executando imagem docker
 $ docker run -p 8080:80 api_csharp
 
+# Executando docker compose
+$ docker-compose up --build
+
 ```
 
 ## 👨‍💻 Equipe de Desenvolvimento
