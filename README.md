@@ -72,6 +72,12 @@ $ https://localhost:44326/swagger/index.html
 # Gerando publicação da aplicação
 $ dotnet publish "api_csharp.csproj" -c Release -o /app/publish
 
+# Criando a imagem docker
+$ docker build -t api_csharp .
+
+# Executando imagem docker
+$ docker run -p 8080:80 api_csharp
+
 ```
 
 ## 👨‍💻 Equipe de Desenvolvimento
