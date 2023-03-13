@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  APICSharp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: nodejs
+    container_name: APICSharp
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      - DATABASE_DIALECT=$DATABASE_DIALECT
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/home/node/app
+      - node_modules:/home/node/app/node_modules
+    networks:
+      - app-network
+    command: ./wait-for-it.sh 192.168.0.2:1433 -- /app app.js
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  node_modules:        
