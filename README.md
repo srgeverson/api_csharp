@@ -12,21 +12,41 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 ## 🚀 Dependências utilizadas
 * ** Microsoft.AspNetCore.OpenApi 7.0.0
 * ** Swashbuckle.AspNetCore 6.4.0
+* ** Microsoft.AspNetCore.Mvc.Versioning 5.0.0
+* ** Swashbuckle.AspNetCore.Filters 7.0.3
 
 ## 🛠️ Constrção da aplicação
 
 ```bash
-### Criando o projeto, README.md e commitando pela primeira vez
+
+# Criando o projeto
 $ dotnet new webapi -o api_csharp
+
+# Entrando na pasta criada
 $ cd api_csharp
+
+# Habilitando protocolo https
 $ dotnet dev-certs https --trust
+
+# Criando README.md 
 $ echo "# API C#" >> README.md
+
+# Inicializando repositório
 $ git init
+
+# Commitando pela primeira vez
 $ git add README.md
 $ git commit -m "first commit"
+
+# Definindo branch principal
 $ git branch -M main
+
+# Enviando para repositório remoto
 $ git remote add origin https://github.com/srgeverson/api_csharp.git
 $ git push -u origin main
+
+# Biblioteca de versionamento
+$ dotnet add package Microsoft.AspNetCore.Mvc.Versioning --version 5.0.0
 
 ```
 
@@ -36,6 +56,21 @@ $ git push -u origin main
 
 ### Clonando o projeto
 $ git clone https://github.com/srgeverson/api_csharp.git
+
+# Entrando na pasta criada
+$ cd api_csharp
+
+# Restaurando/Instalando dependências
+$ dotnet restore "./api_csharp.csproj"
+
+# Executando aplicação
+$ dotnet run --urls=https://localhost:44326
+
+# Acessando swagger
+$ https://localhost:44326/swagger/index.html
+
+# Gerando publicação da aplicação
+$ dotnet publish "api_csharp.csproj" -c Release -o /app/publish
 
 ```
 
