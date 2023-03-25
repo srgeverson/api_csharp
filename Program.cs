@@ -1,95 +1,69 @@
+using api_csharp.Core;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.Extensions.Options;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-#region Add services to the container.
 builder.Services.AddControllers();
-#endregion
-
-#region Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddApiVersioning(setup =>
+
+// GitHub do ASP.NET API Versioning:
+// https://github.com/microsoft/aspnet-api-versioning
+
+// GitHub do projeto que utilizei como base para a
+// a implementacaoo desta aplicacaoo:
+// https://github.com/microsoft/aspnet-api-versioning/tree/master/samples/aspnetcore/SwaggerSample
+
+// Algumas referencias sobre ASP.NET API Versioning:
+// https://devblogs.microsoft.com/aspnet/open-source-http-api-packages-and-tools/
+// https://www.hanselman.com/blog/aspnet-core-restful-web-api-versioning-made-easy
+
+builder.Services.AddApiVersioning(options =>
 {
-    setup.DefaultApiVersion = new ApiVersion(2, 0);
-    setup.AssumeDefaultVersionWhenUnspecified = true;
-    setup.ReportApiVersions = true;
+    // Retorna os headers "api-supported-versions" e "api-deprecated-versions"
+    // indicando versoes suportadas pela API e o que esta como deprecated
+    options.ReportApiVersions = true;
+
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(2, 0);
 });
 
-//builder.Services.AddVersionedApiExplorer(setup =>
-//{
-//    setup.GroupNameFormat = "'v'VVV";
-//    setup.SubstituteApiVersionInUrl = true;
-//});
-#endregion
-
-builder.Services.AddSwaggerGen(option =>
+builder.Services.AddVersionedApiExplorer(options =>
 {
-    //option.SwaggerDoc("v2", new OpenApiInfo { Title = "V2 API C#", Version = "v2" });
+    // Agrupar por numero de versao
+    // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
+    // note: the specified format code will format the version as "'v'major[.minor][-status]"
+    options.GroupNameFormat = "'v'VVV";
 
-    option.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Version = "v1",
-        Title = "API de Gerenciamento de Usuários.",
-        Description = "Gerenciar e acompahar os acessos",
-        TermsOfService = new Uri(uriString: "http://localhost:5299/TermsOfService"),
-        Contact = new OpenApiContact
-        {
-            Name = "Contrato",
-            Url = new Uri(uriString: "http://localhost:5299/Contact")
-        },
-        License = new OpenApiLicense
-        {
-            Name = "Licença",
-            Url = new Uri(uriString: "http://localhost:5299/License")
-        }
-    });
-    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        In = ParameterLocation.Header,
-        Description = "Insira o token validado aqui",
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        BearerFormat = "JWT",
-        Scheme = "Bearer",
-    });
-    option.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type=ReferenceType.SecurityScheme,
-                    Id="Bearer"
-                }
-            },
-            new string[]{}
-        }
-    });
+    // Necessario para o correto funcionamento das rotas
+    // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
+    // can also be used to control the format of the API version in route templates
+    options.SubstituteApiVersionInUrl = true;
+});
 
+builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.OperationFilter<SwaggerDefaultValues>();
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    option.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
-
-//builder.Services.ConfigureOptions<ConfigureSwaggerOptions>();
 
 var app = builder.Build();
 
-#region Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+
+app.UseSwaggerUI(options =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    //app.UseSwaggerUI(c =>
-    //{
-    //    c.RoutePrefix = "v2";
-    //    var basePath = string.IsNullOrWhiteSpace(c.RoutePrefix) ? "." : "..";
-    //    c.SwaggerEndpoint($"{basePath}/swagger/{c.RoutePrefix}/swagger.json", "V2 API C#");
-    //});
-}
-#endregion
+    // Geracaoo de um endpoint do Swagger para cada versao descoberta
+    foreach (var description in
+        app.Services.GetRequiredService<IApiVersionDescriptionProvider>().ApiVersionDescriptions)
+        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+});
 
 app.UseHttpsRedirection();
 

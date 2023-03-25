@@ -7,8 +7,8 @@ using api_csharp.API.v2.Models;
 namespace api_csharp.API.v2.Controllers;
 
 [ApiController]
-[ApiVersion("2.0")]
-[Route("/v{version:apiVersion}/usuarios")]
+[ApiVersion("2.0", Deprecated = false)]
+[Route("/v{version:apiVersion}/[controller]s")]
 [Produces(MediaTypeNames.Application.Json)]
 /// <summary>
 /// Controlador de Usuario
@@ -37,7 +37,7 @@ public class UsuarioController : ControllerBase
     /// <response code="200">Todos usuários encontrados.</response>
     /// <response code="404">Não existe usuário cadastrado.</response>
     /// <response code="500">Erro interno de sistema.</response>
-    [HttpGet]
+    [HttpGet, MapToApiVersion("2.0")]
     [ProducesResponseType(typeof(IList<UsuarioBasicoResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(IList<UsuarioBasicoResponse>), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(ProblemaExceptionHandler), StatusCodes.Status500InternalServerError)]

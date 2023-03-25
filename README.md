@@ -8,11 +8,9 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 [Git](https://git-scm.com), [.NET Core](https://dotnet.microsoft.com/en-us/download), [SQL Server](https://www.microsoft.com/pt-br/sql-server/sql-server-downloads), [Visual Studio](https://visualstudio.microsoft.com/) ou [VS Code](https://code.visualstudio.com/) e [SQL Server Management Studio](https://docs.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16)
 
 ## 🚀 Dependências utilizadas
-* **Microsoft.AspNetCore.OpenApi 7.0.0**
 * **Swashbuckle.AspNetCore 6.4.0**
 * **Microsoft.AspNetCore.Mvc.Versioning 5.0.0**
-* **Swashbuckle.AspNetCore.Filters 7.0.3**
-
+* **Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer 5.0.0**
 ## 🛠️ Constrção da aplicação
 
 ```bash
