@@ -24,7 +24,9 @@ services:
     networks:
       - api_network_private
       - api_network_public
-    command: ./wait-for-it.sh $DATABASE_HOST:$DATABASE_PORT -- /app 
+    command: ./wait-for-it.sh $DATABASE_HOST:$DATABASE_PORT -- /app
+    links:
+      - api_db
   api_proxy:
     build: ./nginx
     container_name: api_csharp_proxy_container
@@ -35,3 +37,15 @@ services:
       - api_network_public
     links:
       - api_csharp
+  api_db:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: db_api_csharp_container
+    environment:
+      SA_PASSWORD: "12345678"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: "user_teste"
+    ports:
+      - "1433:1433"
+    networks:
+      - api_network_private
+      - api_network_public
