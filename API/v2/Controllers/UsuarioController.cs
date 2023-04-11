@@ -5,14 +5,13 @@ using api_csharp.API.v2.ExceptionHandlers;
 using api_csharp.API.v2.Models;
 
 namespace api_csharp.API.v2.Controllers;
-
+/// <summary>
+/// Controlador de Usuario
+/// </summary>
 [ApiController]
 [ApiVersion("2.0", Deprecated = false)]
 [Route("/v{version:apiVersion}/[controller]s")]
 [Produces(MediaTypeNames.Application.Json)]
-/// <summary>
-/// Controlador de Usuario
-/// </summary>
 public class UsuarioController : ControllerBase
 {
     private static readonly string[] Summaries = new[]
