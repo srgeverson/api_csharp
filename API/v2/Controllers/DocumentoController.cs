@@ -1,5 +1,4 @@
 ﻿using api_csharp.API.v2.ExceptionHandlers;
-using api_csharp.API.v2.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Mime;

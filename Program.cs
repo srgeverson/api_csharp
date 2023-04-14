@@ -48,6 +48,7 @@ builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwa
 
 builder.Services.AddSwaggerGen(options =>
 {
+    options.DocumentFilter<TagDescriptionsDocumentFilter>();
     options.OperationFilter<SwaggerDefaultValues>();
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
