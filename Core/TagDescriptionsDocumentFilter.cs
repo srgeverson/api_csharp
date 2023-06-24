@@ -13,7 +13,7 @@ public class TagDescriptionsDocumentFilter : IDocumentFilter
         todasTags.ForEach(tag =>
         {
             if (swaggerDoc.Paths.Where(p => p.Key.StartsWith(string.Concat("/", context.DocumentName, "/", tag.Name, "s"))).Any())
-                tagsRespectivaVersao.Remove(tag);
+                tagsRespectivaVersao.Add(tag);
         });
         swaggerDoc.Tags = tagsRespectivaVersao;
     }
