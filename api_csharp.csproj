@@ -9,9 +9,16 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="12.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="5.0.0" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\AppClassLibraryClient\AppClassLibraryClient.csproj" />
+	  <ProjectReference Include="..\AppClassLibraryDomain\AppClassLibraryDomain.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
