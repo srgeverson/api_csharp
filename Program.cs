@@ -9,6 +9,8 @@ using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Reflection;
 using api_csharp.API.exceptionhandler;
+using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,10 +82,52 @@ builder.Services.AddGlobalExceptionHandlerMiddleware();
 
 builder.Services.AddSwaggerGen(options =>
 {
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+    {
+        Description = "Description",
+        Name = "Name",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+    {
+        {
+            new OpenApiSecurityScheme()
+            {
+                Reference=new OpenApiReference()
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
     options.DocumentFilter<TagDescriptionsDocumentFilter>();
     options.OperationFilter<SwaggerDefaultValues>();
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+});
+
+var key = string.Empty;
+
+builder.Services
+    .AddAuthentication(a =>
+    {
+        a.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        a.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+.AddJwtBearer(jwt => {
+    jwt.RequireHttpsMetadata = false;
+    jwt.SaveToken = true;
+    jwt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = null,//key,
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
 });
 
 var app = builder.Build();
