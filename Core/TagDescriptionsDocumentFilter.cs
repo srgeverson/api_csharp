@@ -8,6 +8,7 @@ public class TagDescriptionsDocumentFilter : IDocumentFilter
         var todasTags = new List<OpenApiTag> {
                 new OpenApiTag { Name = "Usuario", Description = "Controlador responsável pela autenticação e controle de acesso da API." },
                 new OpenApiTag { Name = "Documento", Description = "Controlador responsável pela disponibilização de ducumentos da aplicação." },
+                new OpenApiTag { Name = "Permissao", Description = "Controlador responsável pelo gerenciamento de permissões." },
             };
         var tagsRespectivaVersao = new List<OpenApiTag>();
         todasTags.ForEach(tag =>

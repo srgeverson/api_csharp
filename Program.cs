@@ -110,7 +110,7 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 
-var key = string.Empty;
+var key = Token.Loadkey();
 
 builder.Services
     .AddAuthentication(a =>
@@ -124,7 +124,7 @@ builder.Services
     jwt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters()
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = null,//key,
+        IssuerSigningKey = key,
         ValidateIssuer = false,
         ValidateAudience = false
     };
